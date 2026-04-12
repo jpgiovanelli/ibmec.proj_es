@@ -154,7 +154,8 @@ perc$IQR       <- perc$Q3 - perc$Q1
 perc$Variavel  <- rownames(perc)
 perc           <- perc[, c("Variavel", setdiff(names(perc), "Variavel"))]
 rownames(perc) <- NULL
-print(round(perc, 3))
+perc_print <- perc %>% mutate(across(where(is.numeric), ~round(.x, 3)))
+print(perc_print)
 write_csv(perc, file.path(TAB_DIR, "percentiles_r.csv"))
 cat("\n")
 
