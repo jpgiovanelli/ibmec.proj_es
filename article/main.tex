@@ -51,25 +51,24 @@
 
 % ── Resumo ────────────────────────────────────────────────────
 \begin{abstract}
-Este artigo apresenta uma análise estatística abrangente de métricas de
-código-fonte do framework de testes Java \textbf{JUnit}, utilizando dados
-provenientes do \textit{GitHub Bug Dataset} versão~1.1. A partir de um
-conjunto de 1.154 classes Java, selecionamos dez métricas representativas
-— cobrindo complexidade, acoplamento, coesão, herança, tamanho, qualidade
-e documentação — e aplicamos técnicas de estatística descritiva e
-inferencial: medidas de tendência central e dispersão, análise de quartis,
-construção de gráficos, detecção de outliers, testes de normalidade
-(Shapiro-Wilk e Kolmogorov-Smirnov), análise de correlação (Pearson e
-Spearman) e modelagem estatística (regressão linear múltipla e regressão
-logística). Os resultados revelam forte assimetria positiva em todas as
-métricas, não-normalidade universal, e um cluster de alta correlação entre
-linhas de código (LOC), complexidade ciclomática ponderada (WMC) e resposta
-por classe (RFC). A profundidade de herança (DIT) mostrou-se
-estatisticamente independente das demais variáveis. O modelo de regressão
-linear múltipla explica 34\% da variabilidade de WMC sem uso de LOC
-(evitando multicolinearidade), enquanto o modelo logístico atinge
-AUC-ROC de 0,744 na predição de presença de avisos PMD severos. O
-código-fonte completo e o conjunto de dados estão disponíveis em:
+This paper presents a comprehensive statistical analysis of source code
+metrics from the Java testing framework \textbf{JUnit}, using data from
+the \textit{GitHub Bug Dataset} version~1.1. From a set of 1,154 Java
+classes, we selected ten representative metrics — covering complexity,
+coupling, cohesion, inheritance, size, quality, and documentation — and
+applied descriptive and inferential statistical techniques: measures of
+central tendency and dispersion, quartile analysis, chart construction,
+outlier detection, normality tests (Shapiro-Wilk and Kolmogorov-Smirnov),
+correlation analysis (Pearson and Spearman), and statistical modeling
+(multiple linear regression and logistic regression). Results reveal
+strong positive skewness across all metrics, universal non-normality, and
+a high-correlation cluster among lines of code (LOC), weighted methods per
+class (WMC), and response for a class (RFC). Depth of inheritance tree
+(DIT) proved statistically independent of all other variables. The multiple
+linear regression model explains 34\% of WMC variability without LOC
+(avoiding multicollinearity), while the logistic model achieves an
+AUC-ROC of 0.744 for predicting the presence of severe PMD warnings. The
+full source code and dataset are available at:
 \url{https://github.com/jpgiovanelli/ibmec.proj_es}.
 \end{abstract}
 
