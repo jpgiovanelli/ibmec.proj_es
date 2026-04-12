@@ -9,7 +9,7 @@ required_packages <- c(
   "ggplot2", "dplyr", "tidyr", "readr", "scales",
   "PerformanceAnalytics", "car", "nortest",
   "pROC", "caret", "gridExtra", "ggcorrplot",
-  "moments", "GGally"
+  "moments", "GGally", "patchwork"
 )
 
 installed <- rownames(installed.packages())
@@ -243,11 +243,13 @@ plots_scatter <- lapply(scatter_pairs, function(p) {
     labs(title = titulo, x = x_var, y = y_var)
 })
 
-do.call(gridExtra::grid.arrange,
-        c(plots_scatter, list(ncol = 3,
-          top = grid::textGrob("Graficos de Dispersao entre Pares de Variaveis",
-                                gp = grid::gpar(fontsize = 13, fontface = "bold")))))
-save_fig("scatter_plots_r.png", width = 16, height = 10)
+p_scatter <- (plots_scatter[[1]] | plots_scatter[[2]] | plots_scatter[[3]]) /
+             (plots_scatter[[4]] | plots_scatter[[5]] | plots_scatter[[6]]) +
+  plot_annotation(title = "Graficos de Dispersao entre Pares de Variaveis",
+                  theme = theme(plot.title = element_text(size = 13, face = "bold")))
+ggsave(file.path(FIG_DIR, "scatter_plots_r.png"), plot = p_scatter,
+       width = 16, height = 10, dpi = 300, bg = "white")
+cat("  -> figura salva:", file.path(FIG_DIR, "scatter_plots_r.png"), "\n")
 
 # 4c. Distribuicao de DIT (variavel discreta)
 dit_freq <- df_s %>%
@@ -395,11 +397,12 @@ qq_ols <- function(v) {
 }
 
 qq_plots <- lapply(SELECTED, qq_ols)
-do.call(gridExtra::grid.arrange,
-        c(qq_plots, list(ncol = 5,
-          top = grid::textGrob("Q-Q Plots das Variaveis Selecionadas",
-                                gp = grid::gpar(fontsize = 13, fontface = "bold")))))
-save_fig("qq_plots_r.png", width = 20, height = 8)
+p_qq <- wrap_plots(qq_plots, ncol = 5) +
+  plot_annotation(title = "Q-Q Plots das Variaveis Selecionadas",
+                  theme = theme(plot.title = element_text(size = 13, face = "bold")))
+ggsave(file.path(FIG_DIR, "qq_plots_r.png"), plot = p_qq,
+       width = 20, height = 8, dpi = 300, bg = "white")
+cat("  -> figura salva:", file.path(FIG_DIR, "qq_plots_r.png"), "\n")
 
 cat("  Efeito da transformacao log1p:\n")
 for (v in c("WMC","LOC","RFC","WarningInfo")) {
@@ -532,11 +535,13 @@ p3 <- ggplot(df_diag, aes(x = Residuos)) +
   labs(title = "Distribuicao dos Residuos",
        x = "Residuos", y = "Densidade")
 
-gridExtra::grid.arrange(p1, p2, p3, ncol = 3,
-  top = grid::textGrob(
-    "Diagnosticos da Regressao Linear (WMC ~ CBO + DIT + NM + LCOM5)",
-    gp = grid::gpar(fontsize = 12, fontface = "bold")))
-save_fig("regression_diagnostics_r.png", width = 16, height = 5)
+p_diag <- (p1 | p2 | p3) +
+  plot_annotation(
+    title = "Diagnosticos da Regressao Linear (WMC ~ CBO + DIT + NM + LCOM5)",
+    theme = theme(plot.title = element_text(size = 12, face = "bold")))
+ggsave(file.path(FIG_DIR, "regression_diagnostics_r.png"), plot = p_diag,
+       width = 16, height = 5, dpi = 300, bg = "white")
+cat("  -> figura salva:", file.path(FIG_DIR, "regression_diagnostics_r.png"), "\n")
 
 # ── 8B. REGRESSAO LOGISTICA ──────────────────────────────────
 cat("  8B. REGRESSAO LOGISTICA\n")
