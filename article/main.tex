@@ -74,13 +74,25 @@ full source code and dataset are available at:
 
 \begin{resumo}
 Este artigo apresenta uma análise estatística abrangente de métricas de
-código-fonte do framework JUnit, usando o \textit{GitHub Bug Dataset}~1.1.
-Analisamos 1.154 classes Java com dez métricas selecionadas, aplicando
-estatística descritiva, testes de normalidade, correlação e modelagem
-por regressão linear e logística. Os resultados evidenciam forte
-assimetria positiva, não-normalidade universal e um cluster
-LOC--WMC--RFC com correlações acima de 0,88. O modelo logístico
-para predição de avisos PMD severos alcança AUC de 0,744.
+código-fonte do framework de testes Java \textbf{JUnit}, utilizando dados
+provenientes do \textit{GitHub Bug Dataset} versão~1.1. A partir de um
+conjunto de 1.154 classes Java, selecionamos dez métricas representativas
+— cobrindo complexidade, acoplamento, coesão, herança, tamanho, qualidade
+e documentação — e aplicamos técnicas de estatística descritiva e
+inferencial: medidas de tendência central e dispersão, análise de quartis,
+construção de gráficos, detecção de outliers, testes de normalidade
+(Shapiro-Wilk e Kolmogorov-Smirnov), análise de correlação (Pearson e
+Spearman) e modelagem estatística (regressão linear múltipla e regressão
+logística). Os resultados revelam forte assimetria positiva em todas as
+métricas, não-normalidade universal, e um cluster de alta correlação entre
+linhas de código (LOC), complexidade ciclomática ponderada (WMC) e resposta
+por classe (RFC). A profundidade de herança (DIT) mostrou-se
+estatisticamente independente das demais variáveis. O modelo de regressão
+linear múltipla explica 34\% da variabilidade de WMC sem uso de LOC
+(evitando multicolinearidade), enquanto o modelo logístico atinge
+AUC-ROC de 0,744 na predição de presença de avisos PMD severos. O
+código-fonte completo e o conjunto de dados estão disponíveis em:
+\url{https://github.com/jpgiovanelli/ibmec.proj_es}.
 \end{resumo}
 
 % ═══════════════════════════════════════════════════════════════
