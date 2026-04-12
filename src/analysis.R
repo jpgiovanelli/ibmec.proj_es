@@ -375,13 +375,26 @@ print(norm_df)
 write_csv(norm_df, file.path(TAB_DIR, "normality_r.csv"))
 cat("\n")
 
-# QQ-plots com ggplot2
-qq_plots <- lapply(SELECTED, function(v) {
-  ggplot(df_s, aes(sample = .data[[v]])) +
-    stat_qq(size = 0.8, alpha = 0.35, color = CB_PALETTE[1]) +
-    stat_qq_line(color = "red", linewidth = 1) +
-    labs(title = v, x = "Quantis Teoricos", y = "Quantis Observados")
-})
+# QQ-plots -- linha de referencia via OLS (igual ao scipy.stats.probplot do Python)
+# stat_qq_line usa Q1/Q3, o que falha para variaveis zero-inflated (ex: CD).
+# Aqui calculamos os quantis teoricos e ajustamos uma reta por OLS, como o Python faz.
+qq_ols <- function(v) {
+  x  <- sort(na.omit(df_s[[v]]))
+  n  <- length(x)
+  p  <- (seq_len(n) - 0.5) / n
+  th <- qnorm(p)
+  fit <- lm(x ~ th)
+  r2  <- summary(fit)$r.squared
+  df_qq <- data.frame(th = th, x = x)
+  ggplot(df_qq, aes(x = th, y = x)) +
+    geom_point(size = 0.7, alpha = 0.35, color = CB_PALETTE[1]) +
+    geom_abline(intercept = coef(fit)[1], slope = coef(fit)[2],
+                color = "red", linewidth = 1) +
+    labs(title = sprintf("%s (r\u00b2=%.3f)", v, r2),
+         x = "Quantis Teoricos", y = "Quantis Observados")
+}
+
+qq_plots <- lapply(SELECTED, qq_ols)
 do.call(gridExtra::grid.arrange,
         c(qq_plots, list(ncol = 5,
           top = grid::textGrob("Q-Q Plots das Variaveis Selecionadas",
