@@ -1,7 +1,8 @@
-# install.packages(c("shiny", "randomForest"))
+# install.packages(c("shiny", "randomForest", "ggplot2"))
 
 library(shiny)
 library(randomForest)
+library(ggplot2)
 
 # =====================================================
 # CARREGAR DADOS
@@ -13,7 +14,7 @@ dados <- read.csv(
 )
 
 # =====================================================
-# LIMPEZA DE COLUNAS (metadados do código)
+# LIMPEZA
 # =====================================================
 
 dados <- dados[, !(names(dados) %in% c(
@@ -21,52 +22,90 @@ dados <- dados[, !(names(dados) %in% c(
   "Line", "Column", "EndLine", "EndColumn"
 ))]
 
+dados <- na.omit(dados)
+
 # =====================================================
-# MODELO -> REGRESSÃO (ex: prever complexidade WMC)
+# MODELO
 # =====================================================
 
 modelo <- randomForest(
   WMC ~ CC + LOC + CBO + RFC + LCOM5,
-  data = dados,
-  na.action = na.omit
+  data = dados
+)
+
+# Importância das variáveis
+importancia <- data.frame(
+  Variavel = rownames(importance(modelo)),
+  Importancia = importance(modelo)[, 1]
 )
 
 # =====================================================
-# INTERFACE
+# UI
 # =====================================================
 
 ui <- fluidPage(
   
-  titlePanel("Predição de Complexidade de Software (WMC)"),
+  titlePanel("Dashboard de Qualidade de Software"),
   
-  sidebarLayout(
+  tabsetPanel(
     
-    sidebarPanel(
-      
-      numericInput("cc", "Complexidade Ciclomática (CC)", 10),
-      numericInput("loc", "Linhas de Código (LOC)", 200),
-      numericInput("cbo", "Acoplamento (CBO)", 5),
-      numericInput("rfc", "Resposta da Classe (RFC)", 10),
-      numericInput("lcom", "Falta de Coesão (LCOM5)", 1),
-      
-      actionButton("prever", "Executar")
+    # =========================
+    # TAB 1 - PREDIÇÃO
+    # =========================
+    tabPanel("Previsão",
+             
+             sidebarLayout(
+               
+               sidebarPanel(
+                 numericInput("cc", "CC", 10),
+                 numericInput("loc", "LOC", 200),
+                 numericInput("cbo", "CBO", 5),
+                 numericInput("rfc", "RFC", 10),
+                 numericInput("lcom", "LCOM5", 1),
+                 
+                 actionButton("btn", "Prever")
+               ),
+               
+               mainPanel(
+                 h3("Resultado"),
+                 verbatimTextOutput("predicao")
+               )
+             )
     ),
     
-    mainPanel(
-      
-      h3("Previsão de WMC"),
-      verbatimTextOutput("resultado")
+    # =========================
+    # TAB 2 - IMPORTÂNCIA
+    # =========================
+    tabPanel("Importância das Variáveis",
+             plotOutput("plot_importancia")
+    ),
+    
+    # =========================
+    # TAB 3 - DISTRIBUIÇÃO
+    # =========================
+    tabPanel("Distribuição WMC",
+             plotOutput("plot_dist")
+    ),
+    
+    # =========================
+    # TAB 4 - INSIGHT
+    # =========================
+    tabPanel("Análise",
+             plotOutput("plot_scatter")
     )
   )
 )
 
 # =====================================================
-# SERVIDOR
+# SERVER
 # =====================================================
 
 server <- function(input, output) {
   
-  observeEvent(input$prever, {
+  # -------------------------
+  # PREVISÃO
+  # -------------------------
+  observeEvent(input$btn, {
     
     novo <- data.frame(
       CC = input$cc,
@@ -78,9 +117,51 @@ server <- function(input, output) {
     
     pred <- predict(modelo, novo)
     
-    output$resultado <- renderText({
+    output$predicao <- renderText({
       paste("WMC estimado:", round(pred, 2))
     })
+  })
+  
+  # -------------------------
+  # IMPORTÂNCIA
+  # -------------------------
+  output$plot_importancia <- renderPlot({
+    
+    ggplot(importancia, aes(x = reorder(Variavel, Importancia),
+                            y = Importancia)) +
+      geom_col(fill = "steelblue") +
+      coord_flip() +
+      labs(title = "Importância das Variáveis",
+           x = "Variável",
+           y = "Importância") +
+      theme_minimal()
+  })
+  
+  # -------------------------
+  # DISTRIBUIÇÃO WMC
+  # -------------------------
+  output$plot_dist <- renderPlot({
+    
+    ggplot(dados, aes(x = WMC)) +
+      geom_histogram(fill = "darkgreen", bins = 30) +
+      labs(title = "Distribuição do WMC",
+           x = "WMC",
+           y = "Frequência") +
+      theme_minimal()
+  })
+  
+  # -------------------------
+  # RELAÇÃO CC vs WMC
+  # -------------------------
+  output$plot_scatter <- renderPlot({
+    
+    ggplot(dados, aes(x = CC, y = WMC)) +
+      geom_point(alpha = 0.5, color = "darkred") +
+      geom_smooth(method = "lm", color = "blue") +
+      labs(title = "Relação entre CC e WMC",
+           x = "CC",
+           y = "WMC") +
+      theme_minimal()
   })
 }
 
