@@ -1,0 +1,12 @@
+requests
+flask
+click
+jinja
+black
+typer
+httpx
+starlette
+tornado
+pydantic
+attrs
+alembic
