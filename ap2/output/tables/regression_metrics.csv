@@ -1,0 +1,3 @@
+Model,RMSE,MAE
+Ridge,0.2886,0.1678
+RandomForestReg,0.0255,0.004

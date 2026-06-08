@@ -1,1 +1,4 @@
 /.idea
+/ap2/data/repos/
+*.pyc
+__pycache__/
